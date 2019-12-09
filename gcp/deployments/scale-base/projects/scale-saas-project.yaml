@@ -15,6 +15,7 @@ resources:
         - logging.googleapis.com
         - iam.googleapis.com
         - container.googleapis.com
+        - sqladmin.googleapis.com
 
       iam-policy-patch:
         add:
