@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
 #  creationTimestamp: null
   labels:
-    app: ${APP_LABEL}
+    app: $(APP_LABEL)
     threescale_component: backend
     threescale_component_element: worker
   name: backend-worker
@@ -23,7 +23,7 @@ spec:
     metadata:
 #      creationTimestamp: null
       labels:
-        app: ${APP_LABEL}
+        app: $(APP_LABEL)
         deployment: backend-worker
         threescale_component: backend
         threescale_component_element: worker
