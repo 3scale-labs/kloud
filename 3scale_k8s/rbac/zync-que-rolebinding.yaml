@@ -1,0 +1,12 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+#  creationTimestamp: null
+  name: zync-que-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: zync-que-role
+subjects:
+- kind: ServiceAccount
+  name: zync-que-sa

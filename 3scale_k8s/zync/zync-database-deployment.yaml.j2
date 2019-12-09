@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+#  creationTimestamp: null
+  labels:
+    app: {{ APP_LABEL }}
+    threescale_component: zync
+    threescale_component_element: database
+  name: zync-database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: zync-database
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+#      creationTimestamp: null
+      labels:
+        app: {{ APP_LABEL }}
+        deploymentConfig: zync-database
+        threescale_component: zync
+        threescale_component_element: database
+    spec:
+      containers:
+      - env:
+        - name: POSTGRESQL_USER
+          value: zync
+        - name: POSTGRESQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: ZYNC_DATABASE_PASSWORD
+              name: zync
+        - name: POSTGRESQL_DATABASE
+          value: zync_production
+        image: {{ ZYNC_DATABASE_IMAGE }}
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          initialDelaySeconds: 30
+          tcpSocket:
+            port: 5432
+          timeoutSeconds: 1
+        name: postgresql
+        ports:
+        - containerPort: 5432
+          protocol: TCP
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -i
+            - -c
+            - psql -h 127.0.0.1 -U zync -q -d zync_production -c 'SELECT 1'
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+        resources: {}
+        volumeMounts:
+        - mountPath: /var/lib/pgsql/data
+          name: zync-database-data
+      restartPolicy: Always
+      serviceAccountName: amp
+      volumes:
+      - emptyDir: {}
+        name: zync-database-data
