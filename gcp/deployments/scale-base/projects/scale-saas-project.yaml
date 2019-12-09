@@ -16,6 +16,7 @@ resources:
         - iam.googleapis.com
         - container.googleapis.com
         - sqladmin.googleapis.com
+        - cloudkms.googleapis.com
 
       iam-policy-patch:
         add:
