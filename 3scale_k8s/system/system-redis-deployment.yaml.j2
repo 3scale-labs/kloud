@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ APP_LABEL }}
+    threescale_component: system
+    threescale_component_element: redis
+  name: system-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: system-redis
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ APP_LABEL }}
+        deploymentConfig: system-redis
+        threescale_component: system
+        threescale_component_element: redis
+    spec:
+      containers:
+      - args:
+        - /etc/redis.d/redis.conf
+        - --daemonize
+        - "no"
+        command:
+        - /opt/rh/rh-redis32/root/usr/bin/redis-server
+        image: {{ REDIS_IMAGE }}
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          tcpSocket:
+            port: 6379
+        name: system-redis
+        readinessProbe:
+          exec:
+            command:
+            - container-entrypoint
+            - bash
+            - -c
+            - redis-cli set liveness-probe "`date`" | grep OK
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        volumeMounts:
+        - mountPath: /var/lib/redis/data
+          name: system-redis-storage
+        - mountPath: /etc/redis.d/
+          name: redis-config
+      serviceAccountName: amp
+      volumes:
+      - name: system-redis-storage
+        persistentVolumeClaim:
+          claimName: system-redis-storage
+      - configMap:
+          items:
+          - key: redis.conf
+            path: redis.conf
+          name: redis-config
+        name: redis-config

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: {{ APP_LABEL }}
+    threescale_component: system
+    threescale_component_element: mysql
+  name: mysql-storage
+spec:
+  accessModes:
+  - ReadWriteOnce
+#  dataSource: null
+  resources:
+    requests:
+      storage: 1Gi

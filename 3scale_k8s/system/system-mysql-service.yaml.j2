@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: {{ APP_LABEL }}
+    threescale_component: system
+    threescale_component_element: mysql
+  name: system-mysql
+spec:
+  ports:
+  - name: system-mysql
+    port: 3306
+    protocol: TCP
+    targetPort: 3306
+  selector:
+    deployment: system-mysql

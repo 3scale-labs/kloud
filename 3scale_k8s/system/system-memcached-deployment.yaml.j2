@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ APP_LABEL }}
+    threescale_component: system
+    threescale_component_element: memcache
+  name: system-memcache
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: system-memcache
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+#      intervalSeconds: 1
+#      timeoutSeconds: 600
+#      updatePeriodSeconds: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: {{ APP_LABEL }}
+        deploymentConfig: system-memcache
+        threescale_component: system
+        threescale_component_element: memcache
+    spec:
+      containers:
+      - command:
+        - memcached
+        - -m
+        - "64"
+        image: {{ MEMCACHED_IMAGE }}
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          tcpSocket:
+            port: 11211
+        name: memcache
+        ports:
+        - containerPort: 11211
+          protocol: TCP
+        readinessProbe:
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          tcpSocket:
+            port: 11211
+          timeoutSeconds: 5
+        resources: {}
+      serviceAccountName: amp

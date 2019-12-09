@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ APP_LABEL }}
+    threescale_component: system
+    threescale_component_element: mysql
+  name: system-mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: system-mysql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ APP_LABEL }}
+        deploymentConfig: system-mysql
+        threescale_component: system
+        threescale_component_element: mysql
+    spec:
+      containers:
+      - env:
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              key: DB_USER
+              name: system-database
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: DB_PASSWORD
+              name: system-database
+        - name: MYSQL_DATABASE
+          value: {{ SYSTEM_DATABASE }}
+        - name: MYSQL_ROOT_PASSWORD
+          value: {{ SYSTEM_DATABASE_ROOT_PASSWORD }}
+        - name: MYSQL_LOWER_CASE_TABLE_NAMES
+          value: "1"
+        - name: MYSQL_DEFAULTS_FILE
+          value: /etc/my-extra/my.cnf
+        image: {{ SYSTEM_DATABASE_IMAGE }}
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          tcpSocket:
+            port: 3306
+        name: system-mysql
+        ports:
+        - containerPort: 3306
+          protocol: TCP
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -i
+            - -c
+            - MYSQL_PWD="$MYSQL_PASSWORD" mysql -h 127.0.0.1 -u $MYSQL_USER -D $MYSQL_DATABASE
+              -e 'SELECT 1'
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 5
+        resources: {}
+        volumeMounts:
+        - mountPath: /var/lib/mysql/data
+          name: mysql-storage
+        - mountPath: /etc/my-extra.d
+          name: mysql-extra-conf
+        - mountPath: /etc/my-extra
+          name: mysql-main-conf
+      serviceAccountName: amp
+      volumes:
+      - name: mysql-storage
+        persistentVolumeClaim:
+          claimName: mysql-storage
+      - configMap:
+          name: mysql-extra-conf
+        name: mysql-extra-conf
+      - configMap:
+          name: mysql-main-conf
+        name: mysql-main-conf

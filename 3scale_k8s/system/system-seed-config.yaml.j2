@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app: {{ APP_LABEL }}
+    threescale_component: system
+  name: system-seed
+stringData:
+  ADMIN_ACCESS_TOKEN: {{ ADMIN_ACCESS_TOKEN }}
+  ADMIN_EMAIL: {{ ADMIN_EMAIL }}
+  ADMIN_PASSWORD: {{ ADMIN_PASSWORD }}
+  ADMIN_USER: {{ ADMIN_USERNAME }}
+  MASTER_ACCESS_TOKEN: {{ MASTER_ACCESS_TOKEN }}
+  MASTER_DOMAIN: {{ MASTER_NAME }}
+  MASTER_PASSWORD: {{ MASTER_PASSWORD }}
+  MASTER_USER: {{ MASTER_USER }}
+  TENANT_NAME: {{ TENANT_NAME }}
+type: Opaque

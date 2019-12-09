@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: {{ APP_LABEL }}
+    threescale_component: system
+    threescale_component_element: sphinx
+  name: system-sphinx
+spec:
+  ports:
+  - name: sphinx
+    port: 9306
+    protocol: TCP
+    targetPort: 9306
+  selector:
+    deployment: system-sphinx

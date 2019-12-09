@@ -4,13 +4,13 @@ metadata:
   labels:
     app: 3scale-api-management
     threescale_component: system
-    threescale_component_element: master-ui
-  name: system-master
+    threescale_component_element: ui-api
+  name: system
 spec:
   ports:
     - name: http
       port: 3000
       protocol: TCP
-      targetPort: master
+      targetPort: ui-api
   selector:
-    deploymentConfig: system-app
+    deployment: system-app

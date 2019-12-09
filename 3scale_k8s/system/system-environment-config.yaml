@@ -2,12 +2,12 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   labels:
-    app: $(APP_LABEL)
+    app: {{ APP_LABEL }}
     threescale_component: system
   name: system-environment
 data:
   AMP_RELEASE: 2.7.1
-  APICAST_REGISTRY_URL: $(APICAST_REGISTRY_URL)
+  APICAST_REGISTRY_URL: {{ APICAST_REGISTRY_URL }}
   FORCE_SSL: "true"
   PROVIDER_PLAN: enterprise
   RAILS_ENV: production
@@ -16,4 +16,4 @@ data:
   SSL_CERT_DIR: /etc/pki/tls/certs
   THINKING_SPHINX_PORT: "9306"
   THREESCALE_SANDBOX_PROXY_OPENSSL_VERIFY_MODE: VERIFY_NONE
-  THREESCALE_SUPERDOMAIN: $(WILDCARD_DOMAIN)
+  THREESCALE_SUPERDOMAIN: {{ WILDCARD_DOMAIN }}
