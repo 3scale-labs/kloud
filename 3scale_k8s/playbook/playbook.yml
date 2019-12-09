@@ -1,0 +1,8 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  tasks:
+    - name: Parameterize Templates
+      template: src={{ item }} dest=../resources/{{ item | basename | regex_replace('.j2','') }}
+      with_fileglob:
+        - ../backend/*.j2

@@ -3,14 +3,15 @@ kind: Deployment
 metadata:
 #  creationTimestamp: null
   labels:
-    app: $(APP_LABEL)
+    app: {{ APP_LABEL }}
     threescale_component: backend
-    threescale_component_element: worker
-  name: backend-worker
+    threescale_component_element: cron
+  name: backend-cron
 spec:
   replicas: 1
   selector:
-    deployment: backend-worker
+    matchLabels:
+      deployment: backend-cron
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -23,15 +24,14 @@ spec:
     metadata:
 #      creationTimestamp: null
       labels:
-        app: $(APP_LABEL)
-        deployment: backend-worker
+        app: {{ APP_LABEL }}
+        deployment: backend-cron
         threescale_component: backend
-        threescale_component_element: worker
+        threescale_component_element: cron
     spec:
       containers:
       - args:
-        - bin/3scale_backend_worker
-        - run
+        - backend-cron
         env:
         - name: CONFIG_REDIS_PROXY
           valueFrom:
@@ -68,19 +68,9 @@ spec:
             configMapKeyRef:
               key: RACK_ENV
               name: backend-environment
-        - name: CONFIG_EVENTS_HOOK
-          valueFrom:
-            secretKeyRef:
-              key: URL
-              name: system-events-hook
-        - name: CONFIG_EVENTS_HOOK_SHARED_SECRET
-          valueFrom:
-            secretKeyRef:
-              key: PASSWORD
-              name: system-events-hook
-        image: amp-backend:latest
+        image: {{ AMP_BACKEND_IMAGE }}
         imagePullPolicy: IfNotPresent
-        name: backend-worker
+        name: backend-cron
         resources: {}
       initContainers:
       - command:
@@ -127,7 +117,7 @@ spec:
               name: backend-environment
         - name: SLEEP_SECONDS
           value: "1"
-        image: amp-backend:latest
+        image: {{ AMP_BACKEND_IMAGE }}
         name: backend-redis-svc
         resources: {}
       serviceAccountName: amp

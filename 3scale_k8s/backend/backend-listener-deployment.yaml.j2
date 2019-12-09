@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
 #  creationTimestamp: null
   labels:
-    app: ${APP_LABEL}
+    app: {{ APP_LABEL }}
     threescale_component: backend
     threescale_component_element: listener
   name: backend-listener
@@ -24,7 +24,7 @@ spec:
     metadata:
 #      creationTimestamp: null
       labels:
-        app: ${APP_LABEL}
+        app: {{ APP_LABEL }}
         deployment: backend-listener
         threescale_component: backend
         threescale_component_element: listener
@@ -87,7 +87,7 @@ spec:
             secretKeyRef:
               key: password
               name: backend-internal-api
-        image: amp-backend:latest
+        image: {{ AMP_BACKEND_IMAGE }}
         imagePullPolicy: IfNotPresent
         livenessProbe:
           initialDelaySeconds: 30

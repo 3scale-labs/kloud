@@ -1,4 +1,0 @@
-resources:
-  - ./../base
-  - backend-worker-deployment.yaml
-

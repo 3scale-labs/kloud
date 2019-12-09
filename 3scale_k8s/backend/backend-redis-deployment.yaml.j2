@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
 #  creationTimestamp: null
   labels:
-    app: ${APP_LABEL}
+    app: {{ APP_LABEL }}
     threescale_component: backend
     threescale_component_element: redis
   name: backend-redis
@@ -18,7 +18,7 @@ spec:
     metadata:
 #      creationTimestamp: null
       labels:
-        app: ${APP_LABEL}
+        app: {{ APP_LABEL }}
         deployment: backend-redis
         threescale_component: backend
         threescale_component_element: redis
@@ -30,7 +30,7 @@ spec:
         - "no"
         command:
         - /opt/rh/rh-redis32/root/usr/bin/redis-server
-        image: backend-redis:latest
+        image: {{ REDIS_IMAGE }}
         imagePullPolicy: IfNotPresent
         livenessProbe:
           initialDelaySeconds: 10

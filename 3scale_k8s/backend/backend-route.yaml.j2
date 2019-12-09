@@ -2,17 +2,17 @@ apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   labels:
-    app: ${APP_LABEL}
+    app: {{ APP_LABEL }}
     threescale_component: backend
   name: backend
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: backend-${TENANT_NAME}.${WILDCARD_DOMAIN}
+  - host: backend-{{ TENANT_NAME }}.{{ WILDCARD_DOMAIN }}
     http:
       paths:
-      - path: /testpath
+      - path: /
         backend:
           serviceName: backend-listener
           servicePort: 80
@@ -25,11 +25,11 @@ spec:
 #metadata:
 #  creationTimestamp: null
 #  labels:
-#    app: ${APP_LABEL}
+#    app: {{ APP_LABEL }}
 #    threescale_component: backend
 #  name: backend
 #spec:
-#  host: backend-${TENANT_NAME}.${WILDCARD_DOMAIN}
+#  host: backend-{{ TENANT_NAME }}.{{ WILDCARD_DOMAIN }}
 #  port:
 #    targetPort: http
 #  tls:
