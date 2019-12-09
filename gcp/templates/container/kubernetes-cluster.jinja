@@ -1,0 +1,193 @@
+resources:
+
+- name: {{ properties.name }}-gke-node-sa
+  type: iam.v1.serviceAccount
+  properties:
+    accountId: {{ properties.name }}-gke-node
+    displayName: VM Service Account for {{ properties.name }} GKE nodes
+
+- name: {{ properties.name }}-nodes-custom-role
+  type: gcp-types/iam-v1:projects.roles
+  properties:
+    parent: "projects/{{ env.project }}"
+    roleId: "custom.{{ properties.name }}Nodes"
+    role:
+        title: Custom Role for GKE cluster nodes
+        description: This role allows a GKE cluster nodes work with GCP APIs
+        stage: GA
+        includedPermissions:
+        - logging.logEntries.create
+        - monitoring.groups.get
+        - monitoring.groups.list
+        - monitoring.metricDescriptors.create
+        - monitoring.metricDescriptors.get
+        - monitoring.metricDescriptors.list
+        - monitoring.monitoredResourceDescriptors.get
+        - monitoring.monitoredResourceDescriptors.list
+        - monitoring.timeSeries.create
+        - monitoring.timeSeries.list
+
+- name: {{ env["project"] }}-{{ properties.name }}-node-sa-binding
+  type: gcp-types/cloudresourcemanager-v1:virtual.projects.iamMemberBinding
+  properties:
+    resource: {{ env["project"] }}
+    member: serviceAccount:$(ref.{{ properties.name }}-gke-node-sa.email)
+    role: $(ref.{{ properties.name }}-nodes-custom-role.name)
+
+- name: {{ properties.name }}
+{% if properties.type == 'REGIONAL' %}
+  type: gcp-types/container-v1:projects.locations.clusters
+  properties:
+    parent: {{ "projects/{}/locations/{}".format(
+      properties.network.project or env.project, properties.network.region)
+    }}
+{% elif properties.type == 'LOCAL' %}
+  type: gcp-types/container-v1:projects.zones.clusters
+  properties:
+    parent: {{ "projects/{}/zones/{}".format(
+      properties.network.project or env.project, properties.network.zone)
+    }}
+{% endif %}
+    cluster:
+      name: {{ properties.name }}
+      network: {{ properties.network.name }}
+      subnetwork: {{ properties.network.subnet }}
+{% if properties.type == 'REGIONAL' %}
+      locations:
+        - "{{ properties.network.region }}-b"
+        - "{{ properties.network.region }}-c"
+        - "{{ properties.network.region }}-d"
+{% elif properties.type == 'LOCAL' %}
+      locations:
+        - {{ properties.network.zone }}
+{% endif %}
+{% if properties.initialVersion %}
+      initialClusterVersion: {{ properties.initialVersion | string }}
+{% endif %}
+      loggingService: {{ properties.loggingService }}
+      monitoringService: {{ properties.monitoringService }}
+      ipAllocationPolicy:
+        useIpAliases: true
+        clusterSecondaryRangeName: "pods"
+        servicesSecondaryRangeName: "services"
+      defaultMaxPodsConstraint:
+        maxPodsPerNode: {{ properties.maxPodsPerNode }}
+      masterAuth:
+        clientCertificateConfig:
+          issueClientCertificate: false
+      masterAuthorizedNetworksConfig:
+        enabled: {{ properties.masterAuthorizedNetworks | length > 0 }}
+        {% if properties.masterAuthorizedNetworks %}
+        cidrBlocks:
+          {% for authorizedNetwork in properties.masterAuthorizedNetworks %}
+          - name: {{ authorizedNetwork.name }}
+            cidrBlock: {{ authorizedNetwork.cidrBlock }}
+          {% endfor %}
+        {% endif %}
+      addonsConfig:
+        httpLoadBalancing:
+          disabled: true
+        horizontalPodAutoscaling:
+          disabled: false
+        kubernetesDashboard:
+          disabled: true
+        networkPolicyConfig:
+          disabled: {{ false if properties.network.networkPolicy else true }}
+      maintenancePolicy:
+        window:
+          dailyMaintenanceWindow:
+            startTime: "01:00"
+      {# This section is documented but doesn't work
+      {% if properties.network.networkPolicy %}
+      networkPolicy:
+        provider: {{ properties.network.networkPolicyProvider }}
+        enabled: {{ properties.network.networkPolicy }}
+      {% endif %} #}
+      nodePools:
+        - name: initial-pool
+          initialNodeCount: 0
+  metadata:
+    dependsOn:
+      - {{ env["project"] }}-{{ properties.name }}-node-sa-binding
+
+{% for nodePool in properties.nodePools %}
+- name: {{ properties.name }}-{{ nodePool.name }}-gke-node-pool
+{% if properties.type == 'REGIONAL' %}
+  type: gcp-types/container-v1:projects.locations.clusters.nodePools
+  properties:
+    parent: {{ "projects/{}/locations/{}/clusters/{}".format(
+      properties.network.project or env.project, properties.network.region, properties.name
+    )}}
+{% elif properties.type == 'LOCAL' %}
+  type: gcp-types/container-v1:projects.zones.clusters.nodePools
+  properties:
+    parent: {{ "projects/{}/zones/{}/clusters/{}".format(
+      properties.network.project or env.project, properties.network.zone, properties.name
+    )}}
+{% endif %}
+    nodePool:
+      name: {{ nodePool.name }}-gke-node-pool
+      {% if nodePool.version or properties.initialVersion %}
+      version: {{ nodePool.version or properties.initialVersion | string }}
+      {% endif %}
+      initialNodeCount: {{ nodePool.initialNodeCount }}
+      {% if nodePool.autoscaling %}
+      autoscaling:
+        enabled: true
+        minNodeCount: {{ nodePool.minNodeCount }}
+        maxNodeCount: {{ nodePool.maxNodeCount }}
+      {% endif %}
+      maxPodsConstraint:
+        maxPodsPerNode: {{ nodePool.maxPodsPerNode or properties.maxPodsPerNode }}
+      management:
+        autoUpgrade: true
+        autoRepair: true
+      config:
+        machineType: {{ nodePool.machineType }}
+        imageType: {{ nodePool.imageType }}
+        diskType: {{ nodePool.diskType }}
+        diskSizeGb: {{ nodePool.diskSizeGb }}
+        preemptible: {{ nodePool.preemptible }}
+        serviceAccount: $(ref.{{ properties.name }}-gke-node-sa.email)
+        oauthScopes:
+          - https://www.googleapis.com/auth/compute
+          - https://www.googleapis.com/auth/devstorage.read_only
+          - https://www.googleapis.com/auth/logging.write
+          - https://www.googleapis.com/auth/monitoring
+          - https://www.googleapis.com/auth/servicecontrol
+          - https://www.googleapis.com/auth/service.management.readonly
+        tags:
+          - {{ properties.name }}-gke-node
+          - {{ nodePool.name }}-gke-node-pool
+        {% if properties.network.ingress == 'traefik' %}
+          - {{ properties.name }}-gke-traefik-node
+        {% endif %}
+        {% for tag in nodePool.tags %}
+          - {{ tag }}
+        {% endfor %}
+        {% if nodePool.taints %}
+        taints:
+          {% for taint in nodePool.taints %}
+          - key: {{ taint.key }}
+            value: "{{ taint.value }}"
+            effect: {{ taint.effect }}
+          {% endfor %}
+        {% endif %}
+  metadata:
+    dependsOn:
+      - {{ properties.name }}
+      - {{ properties.name }}-gke-node-sa
+  {% if loop.index != loop.length %}
+      - {{ properties.name }}-{{ properties['nodePools'][loop.index]['name'] }}-gke-node-pool
+  {% endif %}
+{% endfor %}
+
+outputs:
+  - name: project
+    value: {{ env.project }}
+  - name: name
+    value: $(ref.{{ properties.name }}.name)
+  - name: nodes-sa
+    value: $(ref.{{ properties.name }}-gke-node-sa.email)
+  - name: endpoint
+    value: $(ref.{{ properties.name }}.endpoint)
