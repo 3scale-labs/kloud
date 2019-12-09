@@ -18,6 +18,7 @@ resources:
         - sqladmin.googleapis.com
         - cloudkms.googleapis.com
         - servicenetworking.googleapis.com
+        - dns.googleapis.com
 
       iam-policy-patch:
         add:
