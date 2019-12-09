@@ -39,3 +39,18 @@ resource "aws_route53_record" "aws_mc_threesca_net" {
   ttl      = "300"
   records  = aws_route53_zone.this.name_servers
 }
+
+resource "aws_route53_record" "gcp_mc_threesca_net" {
+  provider = aws.master
+  zone_id  = data.aws_route53_zone.threesca_net.zone_id
+  name     = "gcp.mc.3sca.net."
+  type     = "NS"
+  ttl      = "300"
+  records = [
+    "ns-cloud-d1.googledomains.com.",
+    "ns-cloud-d2.googledomains.com.",
+    "ns-cloud-d3.googledomains.com.",
+    "ns-cloud-d4.googledomains.com.",
+  ]
+}
+
