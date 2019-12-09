@@ -1,0 +1,30 @@
+imports:
+  - path: ../../templates/container/kubernetes-cluster.jinja
+
+resources:
+  - name: kubernetes-cluster
+    type: ../../templates/container/kubernetes-cluster.jinja
+    properties:
+      name: hackathon2019
+      description: 3scale Hackathon 2019 Kubernetes Engine cluster.
+      type: REGIONAL
+      initialVersion: "1.14.8"
+      network:
+        name: base-net
+        subnet: kubernetes-sn
+        nonMasqueradeCIDRs: 10.60.0.0/22
+        networkPolicy: true
+      nodePools:
+        - name: compute-pad-g1s
+          machineType: n1-standard-2
+          imageType: cos_containerd
+          preemptible: true
+          autoscaling: true
+
+outputs:
+  - name: cluster-name
+    value: $(ref.kubernetes-cluster.name)
+  - name: cluster-endpoint
+    value: $(ref.kubernetes-cluster.endpoint)
+  - name: cluster-nodes-sa
+    value: $(ref.kubernetes-cluster.nodes-sa)
