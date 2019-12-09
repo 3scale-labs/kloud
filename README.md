@@ -1,1 +1,1 @@
-# hackfest2019
+# 3scale Engineering Hackfest - December 2019
