@@ -5,5 +5,7 @@
     - name: Parameterize Templates
       template: src={{ item }} dest=../resources/{{ item | basename | regex_replace('.j2','') }}
       with_fileglob:
+        - ../apicast/*.j2
         - ../backend/*.j2
+        - ../shared/*.j2
         - ../zync/*.j2
