@@ -7,27 +7,27 @@ spec:
     - web
     - websecure
   routes:
-  # - match: Host('backend-listener.hackfest.aws.mc.3sca.net')
-  #   kind: Rule
-  #   services:
-  #   - name: backend-listener
-  #     port: 3000
-  #     passHostHeader: true
-  # - match: HostRegexp(`.*-apicast-staging.hackfest.aws.mc.3sca.net`)
-  #   kind: Rule
-  #   services:
-  #   - name: apicast-staging
-  #     port: 8080
-  #     passHostHeader: true
-  # - match: HostRegexp(`.*-apicast-production.hackfest.aws.mc.3sca.net`)
-  #   kind: Rule
-  #   services:
-  #   - name: apicast-production
-  #     port: 8080
-  #     passHostHeader: true
-  # - match: HostRegexp(`.*`)
-  #   kind: Rule
-  #   services:
-  #   - name: system-app
-  #     port: 3000
-  #     passHostHeader: true
+  - match: Host(`backend-listener.hackfest.aws.mc.3sca.net`)
+    kind: Rule
+    services:
+    - name: backend-listener
+      port: 3000
+      passHostHeader: true
+  - match: HostRegexp(`{prefix:.*}-apicast-staging.hackfest.aws.mc.3sca.net`)
+    kind: Rule
+    services:
+    - name: apicast-staging
+      port: 8080
+      passHostHeader: true
+  - match: HostRegexp(`{prefix:.*}-apicast-production.hackfest.aws.mc.3sca.net`)
+    kind: Rule
+    services:
+    - name: apicast-production
+      port: 8080
+      passHostHeader: true
+  - match: HostRegexp(`domain:.*`)
+    kind: Rule
+    services:
+    - name: system-app
+      port: 3000
+      passHostHeader: true
