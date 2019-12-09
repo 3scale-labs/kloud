@@ -12,3 +12,8 @@ variable "vm_size" {
   type        = "string"
   default     = "Standard_B2s"
 }
+
+variable "kubernetes_version" {
+  description = "Kubernetes version"
+  default     = "1.14.7"
+}

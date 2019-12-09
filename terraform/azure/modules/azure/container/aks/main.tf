@@ -125,6 +125,7 @@ resource "azurerm_kubernetes_cluster" "main" {
   resource_group_name = "${var.resource_group.name}"
   node_resource_group = "${var.resource_group.name}-nodes"
   dns_prefix          = "${var.name}-aks"
+  kubernetes_version  = "${var.kubernetes_version}"
 
   agent_pool_profile {
     name                = "addonspool"
