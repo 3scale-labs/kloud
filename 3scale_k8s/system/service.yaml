@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: 3scale-api-management
+    threescale_component: system
+    threescale_component_element: master-ui
+  name: system-master
+spec:
+  ports:
+    - name: http
+      port: 3000
+      protocol: TCP
+      targetPort: master
+  selector:
+    deploymentConfig: system-app
