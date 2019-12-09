@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+#  creationTimestamp: null
+  labels:
+    app: ${APP_LABEL}
+    threescale_component: backend
+    threescale_component_element: listener
+  name: backend-listener
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: backend-listener
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+#      intervalSeconds: 1
+#      timeoutSeconds: 600
+#      updatePeriodSeconds: 1
+    type: RollingUpdate
+  template:
+    metadata:
+#      creationTimestamp: null
+      labels:
+        app: ${APP_LABEL}
+        deployment: backend-listener
+        threescale_component: backend
+        threescale_component_element: listener
+    spec:
+      containers:
+      - args:
+        - bin/3scale_backend
+        - start
+        - -e
+        - production
+        - -p
+        - "3000"
+        - -x
+        - /dev/stdout
+        env:
+        - name: CONFIG_REDIS_PROXY
+          valueFrom:
+            secretKeyRef:
+              key: REDIS_STORAGE_URL
+              name: backend-redis
+        - name: CONFIG_REDIS_SENTINEL_HOSTS
+          valueFrom:
+            secretKeyRef:
+              key: REDIS_STORAGE_SENTINEL_HOSTS
+              name: backend-redis
+        - name: CONFIG_REDIS_SENTINEL_ROLE
+          valueFrom:
+            secretKeyRef:
+              key: REDIS_STORAGE_SENTINEL_ROLE
+              name: backend-redis
+        - name: CONFIG_QUEUES_MASTER_NAME
+          valueFrom:
+            secretKeyRef:
+              key: REDIS_QUEUES_URL
+              name: backend-redis
+        - name: CONFIG_QUEUES_SENTINEL_HOSTS
+          valueFrom:
+            secretKeyRef:
+              key: REDIS_QUEUES_SENTINEL_HOSTS
+              name: backend-redis
+        - name: CONFIG_QUEUES_SENTINEL_ROLE
+          valueFrom:
+            secretKeyRef:
+              key: REDIS_QUEUES_SENTINEL_ROLE
+              name: backend-redis
+        - name: RACK_ENV
+          valueFrom:
+            configMapKeyRef:
+              key: RACK_ENV
+              name: backend-environment
+        - name: PUMA_WORKERS
+          value: "16"
+        - name: CONFIG_INTERNAL_API_USER
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: backend-internal-api
+        - name: CONFIG_INTERNAL_API_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: backend-internal-api
+        image: amp-backend:latest
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          tcpSocket:
+            port: 3000
+        name: backend-listener
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /status
+            port: 3000
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+        resources: {}
+      serviceAccountName: amp
