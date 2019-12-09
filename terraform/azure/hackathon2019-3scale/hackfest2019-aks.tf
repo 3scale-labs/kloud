@@ -1,13 +1,3 @@
-terraform {
-  backend "local" {
-    path = ".terraform/state/aks.tfstate"
-  }
-}
-
-provider "azurerm" {
-  version = "=1.34.0"
-}
-
 resource "azurerm_resource_group" "aks" {
   name     = "aks-hackfest2019-rg"
   location = "West Europe"
