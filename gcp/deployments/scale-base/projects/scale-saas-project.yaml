@@ -15,4 +15,10 @@ resources:
         - logging.googleapis.com
         - iam.googleapis.com
 
+      iam-policy-patch:
+        add:
+          - role: roles/owner
+            members:
+              - group:saas-services-for-3scale@redhat.com
+
       set-dm-service-account-as-owner: true
