@@ -36,7 +36,10 @@ spec:
         - name: MYSQL_DATABASE
           value: {{ SYSTEM_DATABASE }}
         - name: MYSQL_ROOT_PASSWORD
-          value: {{ SYSTEM_DATABASE_ROOT_PASSWORD }}
+          valueFrom:
+            secretKeyRef:
+              key: ROOT_PASSWORD
+              name: system-database
         - name: MYSQL_LOWER_CASE_TABLE_NAMES
           value: "1"
         - name: MYSQL_DEFAULTS_FILE
