@@ -47,10 +47,10 @@ resource "aws_route53_record" "gcp_mc_threesca_net" {
   type     = "NS"
   ttl      = "300"
   records = [
-    "ns-cloud-d1.googledomains.com.",
-    "ns-cloud-d2.googledomains.com.",
-    "ns-cloud-d3.googledomains.com.",
-    "ns-cloud-d4.googledomains.com.",
+    "ns-cloud-b1.googledomains.com.",
+    "ns-cloud-b2.googledomains.com.",
+    "ns-cloud-b3.googledomains.com.",
+    "ns-cloud-b4.googledomains.com.",
   ]
 }
 
