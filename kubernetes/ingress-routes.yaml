@@ -1,11 +1,10 @@
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
-  name: 3scale-routes
+  name: 3scale-routes-http
 spec:
   entryPoints:
     - web
-    - websecure
   routes:
   - match: Host(`backend-listener.hackfest.aws.mc.3sca.net`)
     kind: Rule
@@ -28,6 +27,53 @@ spec:
   - match: HostRegexp(`{domain:.*}`)
     kind: Rule
     services:
-    - name: system-app
+    - name: system
       port: 3000
       passHostHeader: true
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: 3scale-routes-https
+spec:
+  entryPoints:
+    - websecure
+  tls: {}
+  routes:
+  - match: Host(`backend-listener.hackfest.aws.mc.3sca.net`)
+    kind: Rule
+    services:
+    - name: backend-listener
+      port: 3000
+      passHostHeader: true
+  - match: HostRegexp(`{prefix:.*}-apicast-staging.hackfest.aws.mc.3sca.net`)
+    kind: Rule
+    services:
+    - name: apicast-staging
+      port: 8080
+      passHostHeader: true
+  - match: HostRegexp(`{prefix:.*}-apicast-production.hackfest.aws.mc.3sca.net`)
+    kind: Rule
+    services:
+    - name: apicast-production
+      port: 8080
+      passHostHeader: true
+  - match: HostRegexp(`{domain:.*}`)
+    kind: Rule
+    services:
+    - name: system
+      port: 3000
+      passHostHeader: true
+  # - kind: Rule
+  #   match: Host(`nginx.aws.mc.3sca.net`)
+  #   services:
+  #   - name: nginx
+  #     passHostHeader: true
+  #     port: 80
+  # - kind: Rule
+  #   match: HostRegexp(`{domain:.*}`)
+  #   services:
+  #   - name: kuard
+  #     passHostHeader: true
+  #     port: 8080
