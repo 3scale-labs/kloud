@@ -15,9 +15,10 @@ resources:
         nonMasqueradeCIDRs: 10.60.0.0/22
         networkPolicy: true
       nodePools:
-        - name: compute-pad-g1s
+        - name: compute-pad-n1s4
           machineType: n1-standard-2
           imageType: cos_containerd
+          diskSizeGb: 30
           preemptible: true
           autoscaling: true
 
