@@ -47,7 +47,6 @@ spec:
     - websecure
   tls: {}
   routes:
-
   - match: HostRegexp(`{domain:traefik.hackfest.[a-z]+.mc.3sca.net}`)
     kind: Rule
     services:
