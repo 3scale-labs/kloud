@@ -6,46 +6,12 @@ metadata:
    app: {{ APP_LABEL }}
    threescale_component: system
    threescale_component_element: provider-ui
- name: system-provider
+ name: system
 spec:
  ports:
  - name: http
    port: 3000
    protocol: TCP
-   targetPort: provider
- selector:
-   deployment: system-app
----
-apiVersion: v1
-kind: Service
-metadata:
- labels:
-   app: {{ APP_LABEL }}
-   threescale_component: system
-   threescale_component_element: master-ui
- name: system-master
-spec:
- ports:
- - name: http
-   port: 3000
-   protocol: TCP
-   targetPort: master
- selector:
-   deployment: system-app
----
-apiVersion: v1
-kind: Service
-metadata:
- labels:
-   app: {{ APP_LABEL }}
-   threescale_component: system
-   threescale_component_element: developer-ui
- name: system-developer
-spec:
- ports:
- - name: http
-   port: 3000
-   protocol: TCP
-   targetPort: developer
+   targetPort: ui-api
  selector:
    deployment: system-app

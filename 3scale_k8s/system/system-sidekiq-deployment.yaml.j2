@@ -298,7 +298,7 @@ spec:
         - bash
         - -c
         - bundle exec sh -c "until rake boot:redis && curl --output /dev/null --silent
-          --fail --head http://system-master:3000/status; do sleep $SLEEP_SECONDS;
+          --fail --head http://system:3000/status; do sleep $SLEEP_SECONDS;
           done"
         env:
         - name: REDIS_URL
