@@ -1,7 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   labels:
     app: {{ APP_LABEL }}
     threescale_component: system
@@ -558,11 +557,306 @@ spec:
                   key: MASTER_ACCESS_TOKEN
                   name: system-seed
 
-
       containers:
-      -
-        args:
+      - args:
         - env
+        - TENANT_MODE=master
+        - PORT=3002
+        - container-entrypoint
+        - bundle
+        - exec
+        - unicorn
+        - -c
+        - config/unicorn.rb
+        env:
+        - name: AMP_RELEASE
+          valueFrom:
+            configMapKeyRef:
+              key: AMP_RELEASE
+              name: system-environment
+        - name: APICAST_REGISTRY_URL
+          valueFrom:
+            configMapKeyRef:
+              key: APICAST_REGISTRY_URL
+              name: system-environment
+        - name: FORCE_SSL
+          valueFrom:
+            configMapKeyRef:
+              key: FORCE_SSL
+              name: system-environment
+        - name: PROVIDER_PLAN
+          valueFrom:
+            configMapKeyRef:
+              key: PROVIDER_PLAN
+              name: system-environment
+        - name: RAILS_ENV
+          valueFrom:
+            configMapKeyRef:
+              key: RAILS_ENV
+              name: system-environment
+        - name: RAILS_LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              key: RAILS_LOG_LEVEL
+              name: system-environment
+        - name: RAILS_LOG_TO_STDOUT
+          valueFrom:
+            configMapKeyRef:
+              key: RAILS_LOG_TO_STDOUT
+              name: system-environment
+        - name: SSL_CERT_DIR
+          valueFrom:
+            configMapKeyRef:
+              key: SSL_CERT_DIR
+              name: system-environment
+        - name: THINKING_SPHINX_PORT
+          valueFrom:
+            configMapKeyRef:
+              key: THINKING_SPHINX_PORT
+              name: system-environment
+        - name: THREESCALE_SANDBOX_PROXY_OPENSSL_VERIFY_MODE
+          valueFrom:
+            configMapKeyRef:
+              key: THREESCALE_SANDBOX_PROXY_OPENSSL_VERIFY_MODE
+              name: system-environment
+        - name: THREESCALE_SUPERDOMAIN
+          valueFrom:
+            configMapKeyRef:
+              key: THREESCALE_SUPERDOMAIN
+              name: system-environment
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              key: URL
+              name: system-database
+        - name: MASTER_DOMAIN
+          valueFrom:
+            secretKeyRef:
+              key: MASTER_DOMAIN
+              name: system-seed
+        - name: MASTER_USER
+          valueFrom:
+            secretKeyRef:
+              key: MASTER_USER
+              name: system-seed
+        - name: MASTER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: MASTER_PASSWORD
+              name: system-seed
+        - name: ADMIN_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: ADMIN_ACCESS_TOKEN
+              name: system-seed
+        - name: USER_LOGIN
+          valueFrom:
+            secretKeyRef:
+              key: ADMIN_USER
+              name: system-seed
+        - name: USER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: ADMIN_PASSWORD
+              name: system-seed
+        - name: USER_EMAIL
+          valueFrom:
+            secretKeyRef:
+              key: ADMIN_EMAIL
+              name: system-seed
+        - name: TENANT_NAME
+          valueFrom:
+            secretKeyRef:
+              key: TENANT_NAME
+              name: system-seed
+        - name: THINKING_SPHINX_ADDRESS
+          value: system-sphinx
+        - name: THINKING_SPHINX_CONFIGURATION_FILE
+          value: /tmp/sphinx.conf
+        - name: EVENTS_SHARED_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: PASSWORD
+              name: system-events-hook
+        - name: RECAPTCHA_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              key: PUBLIC_KEY
+              name: system-recaptcha
+        - name: RECAPTCHA_PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              key: PRIVATE_KEY
+              name: system-recaptcha
+        - name: SECRET_KEY_BASE
+          valueFrom:
+            secretKeyRef:
+              key: SECRET_KEY_BASE
+              name: system-app
+        - name: MEMCACHE_SERVERS
+          valueFrom:
+            secretKeyRef:
+              key: SERVERS
+              name: system-memcache
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              key: URL
+              name: system-redis
+        - name: MESSAGE_BUS_REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              key: MESSAGE_BUS_URL
+              name: system-redis
+        - name: REDIS_NAMESPACE
+          valueFrom:
+            secretKeyRef:
+              key: NAMESPACE
+              name: system-redis
+        - name: MESSAGE_BUS_REDIS_NAMESPACE
+          valueFrom:
+            secretKeyRef:
+              key: MESSAGE_BUS_NAMESPACE
+              name: system-redis
+        - name: REDIS_SENTINEL_HOSTS
+          valueFrom:
+            secretKeyRef:
+              key: SENTINEL_HOSTS
+              name: system-redis
+        - name: REDIS_SENTINEL_ROLE
+          valueFrom:
+            secretKeyRef:
+              key: SENTINEL_ROLE
+              name: system-redis
+        - name: MESSAGE_BUS_REDIS_SENTINEL_HOSTS
+          valueFrom:
+            secretKeyRef:
+              key: MESSAGE_BUS_SENTINEL_HOSTS
+              name: system-redis
+        - name: MESSAGE_BUS_REDIS_SENTINEL_ROLE
+          valueFrom:
+            secretKeyRef:
+              key: MESSAGE_BUS_SENTINEL_ROLE
+              name: system-redis
+        - name: BACKEND_REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              key: REDIS_STORAGE_URL
+              name: backend-redis
+        - name: BACKEND_REDIS_SENTINEL_HOSTS
+          valueFrom:
+            secretKeyRef:
+              key: REDIS_STORAGE_SENTINEL_HOSTS
+              name: backend-redis
+        - name: BACKEND_REDIS_SENTINEL_ROLE
+          valueFrom:
+            secretKeyRef:
+              key: REDIS_STORAGE_SENTINEL_ROLE
+              name: backend-redis
+        - name: APICAST_BACKEND_ROOT_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              key: route_endpoint
+              name: backend-listener
+        - name: BACKEND_ROUTE
+          valueFrom:
+            secretKeyRef:
+              key: route_endpoint
+              name: backend-listener
+        - name: SMTP_ADDRESS
+          valueFrom:
+            configMapKeyRef:
+              key: address
+              name: smtp
+        - name: SMTP_USER_NAME
+          valueFrom:
+            configMapKeyRef:
+              key: username
+              name: smtp
+        - name: SMTP_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: password
+              name: smtp
+        - name: SMTP_DOMAIN
+          valueFrom:
+            configMapKeyRef:
+              key: domain
+              name: smtp
+        - name: SMTP_PORT
+          valueFrom:
+            configMapKeyRef:
+              key: port
+              name: smtp
+        - name: SMTP_AUTHENTICATION
+          valueFrom:
+            configMapKeyRef:
+              key: authentication
+              name: smtp
+        - name: SMTP_OPENSSL_VERIFY_MODE
+          valueFrom:
+            configMapKeyRef:
+              key: openssl.verify.mode
+              name: smtp
+        - name: APICAST_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: ACCESS_TOKEN
+              name: system-master-apicast
+        - name: ZYNC_AUTHENTICATION_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: ZYNC_AUTHENTICATION_TOKEN
+              name: zync
+        - name: CONFIG_INTERNAL_API_USER
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: backend-internal-api
+        - name: CONFIG_INTERNAL_API_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: backend-internal-api
+        image: {{ AMP_SYSTEM_IMAGE }}
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 40
+          initialDelaySeconds: 40
+          periodSeconds: 10
+          tcpSocket:
+            port: master
+          timeoutSeconds: 10
+        name: system-master
+        ports:
+        - containerPort: 3002
+          name: master
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 10
+          httpGet:
+            httpHeaders:
+            - name: X-Forwarded-Proto
+              value: https
+            path: /check.txt
+            port: master
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+        resources:
+          limits:
+            cpu: "1"
+            memory: 800Mi
+          requests:
+            cpu: 50m
+            memory: 600Mi
+        volumeMounts:
+        - mountPath: /opt/system-extra-configs
+          name: system-config
+      - args:
+        - env
+        - TENANT_MODE=provider
         - PORT=3000
         - container-entrypoint
         - bundle
@@ -827,12 +1121,12 @@ spec:
           initialDelaySeconds: 40
           periodSeconds: 10
           tcpSocket:
-            port: ui-api
+            port: provider
           timeoutSeconds: 10
-        name: system-ui-api
+        name: system-provider
         ports:
         - containerPort: 3000
-          name: ui-api
+          name: provider
           protocol: TCP
         readinessProbe:
           failureThreshold: 10
@@ -841,18 +1135,316 @@ spec:
             - name: X-Forwarded-Proto
               value: https
             path: /check.txt
-            port: ui-api
+            port: provider
             scheme: HTTP
           initialDelaySeconds: 60
           periodSeconds: 30
           timeoutSeconds: 10
-        resources: {}
+        resources:
+          limits:
+            cpu: "1"
+            memory: 800Mi
+          requests:
+            cpu: 50m
+            memory: 600Mi
         volumeMounts:
-        - mountPath: /opt/system/public/system
-          name: system-storage
         - mountPath: /opt/system-extra-configs
           name: system-config
-
+      - args:
+        - env
+        - PORT=3001
+        - container-entrypoint
+        - bundle
+        - exec
+        - unicorn
+        - -c
+        - config/unicorn.rb
+        env:
+        - name: AMP_RELEASE
+          valueFrom:
+            configMapKeyRef:
+              key: AMP_RELEASE
+              name: system-environment
+        - name: APICAST_REGISTRY_URL
+          valueFrom:
+            configMapKeyRef:
+              key: APICAST_REGISTRY_URL
+              name: system-environment
+        - name: FORCE_SSL
+          valueFrom:
+            configMapKeyRef:
+              key: FORCE_SSL
+              name: system-environment
+        - name: PROVIDER_PLAN
+          valueFrom:
+            configMapKeyRef:
+              key: PROVIDER_PLAN
+              name: system-environment
+        - name: RAILS_ENV
+          valueFrom:
+            configMapKeyRef:
+              key: RAILS_ENV
+              name: system-environment
+        - name: RAILS_LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              key: RAILS_LOG_LEVEL
+              name: system-environment
+        - name: RAILS_LOG_TO_STDOUT
+          valueFrom:
+            configMapKeyRef:
+              key: RAILS_LOG_TO_STDOUT
+              name: system-environment
+        - name: SSL_CERT_DIR
+          valueFrom:
+            configMapKeyRef:
+              key: SSL_CERT_DIR
+              name: system-environment
+        - name: THINKING_SPHINX_PORT
+          valueFrom:
+            configMapKeyRef:
+              key: THINKING_SPHINX_PORT
+              name: system-environment
+        - name: THREESCALE_SANDBOX_PROXY_OPENSSL_VERIFY_MODE
+          valueFrom:
+            configMapKeyRef:
+              key: THREESCALE_SANDBOX_PROXY_OPENSSL_VERIFY_MODE
+              name: system-environment
+        - name: THREESCALE_SUPERDOMAIN
+          valueFrom:
+            configMapKeyRef:
+              key: THREESCALE_SUPERDOMAIN
+              name: system-environment
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              key: URL
+              name: system-database
+        - name: MASTER_DOMAIN
+          valueFrom:
+            secretKeyRef:
+              key: MASTER_DOMAIN
+              name: system-seed
+        - name: MASTER_USER
+          valueFrom:
+            secretKeyRef:
+              key: MASTER_USER
+              name: system-seed
+        - name: MASTER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: MASTER_PASSWORD
+              name: system-seed
+        - name: ADMIN_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: ADMIN_ACCESS_TOKEN
+              name: system-seed
+        - name: USER_LOGIN
+          valueFrom:
+            secretKeyRef:
+              key: ADMIN_USER
+              name: system-seed
+        - name: USER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: ADMIN_PASSWORD
+              name: system-seed
+        - name: USER_EMAIL
+          valueFrom:
+            secretKeyRef:
+              key: ADMIN_EMAIL
+              name: system-seed
+        - name: TENANT_NAME
+          valueFrom:
+            secretKeyRef:
+              key: TENANT_NAME
+              name: system-seed
+        - name: THINKING_SPHINX_ADDRESS
+          value: system-sphinx
+        - name: THINKING_SPHINX_CONFIGURATION_FILE
+          value: /tmp/sphinx.conf
+        - name: EVENTS_SHARED_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: PASSWORD
+              name: system-events-hook
+        - name: RECAPTCHA_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              key: PUBLIC_KEY
+              name: system-recaptcha
+        - name: RECAPTCHA_PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              key: PRIVATE_KEY
+              name: system-recaptcha
+        - name: SECRET_KEY_BASE
+          valueFrom:
+            secretKeyRef:
+              key: SECRET_KEY_BASE
+              name: system-app
+        - name: MEMCACHE_SERVERS
+          valueFrom:
+            secretKeyRef:
+              key: SERVERS
+              name: system-memcache
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              key: URL
+              name: system-redis
+        - name: MESSAGE_BUS_REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              key: MESSAGE_BUS_URL
+              name: system-redis
+        - name: REDIS_NAMESPACE
+          valueFrom:
+            secretKeyRef:
+              key: NAMESPACE
+              name: system-redis
+        - name: MESSAGE_BUS_REDIS_NAMESPACE
+          valueFrom:
+            secretKeyRef:
+              key: MESSAGE_BUS_NAMESPACE
+              name: system-redis
+        - name: REDIS_SENTINEL_HOSTS
+          valueFrom:
+            secretKeyRef:
+              key: SENTINEL_HOSTS
+              name: system-redis
+        - name: REDIS_SENTINEL_ROLE
+          valueFrom:
+            secretKeyRef:
+              key: SENTINEL_ROLE
+              name: system-redis
+        - name: MESSAGE_BUS_REDIS_SENTINEL_HOSTS
+          valueFrom:
+            secretKeyRef:
+              key: MESSAGE_BUS_SENTINEL_HOSTS
+              name: system-redis
+        - name: MESSAGE_BUS_REDIS_SENTINEL_ROLE
+          valueFrom:
+            secretKeyRef:
+              key: MESSAGE_BUS_SENTINEL_ROLE
+              name: system-redis
+        - name: BACKEND_REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              key: REDIS_STORAGE_URL
+              name: backend-redis
+        - name: BACKEND_REDIS_SENTINEL_HOSTS
+          valueFrom:
+            secretKeyRef:
+              key: REDIS_STORAGE_SENTINEL_HOSTS
+              name: backend-redis
+        - name: BACKEND_REDIS_SENTINEL_ROLE
+          valueFrom:
+            secretKeyRef:
+              key: REDIS_STORAGE_SENTINEL_ROLE
+              name: backend-redis
+        - name: APICAST_BACKEND_ROOT_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              key: route_endpoint
+              name: backend-listener
+        - name: BACKEND_ROUTE
+          valueFrom:
+            secretKeyRef:
+              key: route_endpoint
+              name: backend-listener
+        - name: SMTP_ADDRESS
+          valueFrom:
+            configMapKeyRef:
+              key: address
+              name: smtp
+        - name: SMTP_USER_NAME
+          valueFrom:
+            configMapKeyRef:
+              key: username
+              name: smtp
+        - name: SMTP_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: password
+              name: smtp
+        - name: SMTP_DOMAIN
+          valueFrom:
+            configMapKeyRef:
+              key: domain
+              name: smtp
+        - name: SMTP_PORT
+          valueFrom:
+            configMapKeyRef:
+              key: port
+              name: smtp
+        - name: SMTP_AUTHENTICATION
+          valueFrom:
+            configMapKeyRef:
+              key: authentication
+              name: smtp
+        - name: SMTP_OPENSSL_VERIFY_MODE
+          valueFrom:
+            configMapKeyRef:
+              key: openssl.verify.mode
+              name: smtp
+        - name: APICAST_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: ACCESS_TOKEN
+              name: system-master-apicast
+        - name: ZYNC_AUTHENTICATION_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: ZYNC_AUTHENTICATION_TOKEN
+              name: zync
+        - name: CONFIG_INTERNAL_API_USER
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: backend-internal-api
+        - name: CONFIG_INTERNAL_API_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: backend-internal-api
+        image: {{ AMP_SYSTEM_IMAGE }}
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 40
+          initialDelaySeconds: 40
+          periodSeconds: 10
+          tcpSocket:
+            port: developer
+          timeoutSeconds: 10
+        name: system-developer
+        ports:
+        - containerPort: 3001
+          name: developer
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 10
+          httpGet:
+            httpHeaders:
+            - name: X-Forwarded-Proto
+              value: https
+            path: /check.txt
+            port: developer
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+        resources:
+          limits:
+            cpu: "1"
+            memory: 800Mi
+          requests:
+            cpu: 50m
+            memory: 600Mi
+        volumeMounts:
+        - mountPath: /opt/system-extra-configs
+          name: system-config
       serviceAccountName: amp
       volumes:
       - name: system-storage
@@ -868,5 +1460,3 @@ spec:
             path: service_discovery.yml
           name: system
         name: system-config
-
-
