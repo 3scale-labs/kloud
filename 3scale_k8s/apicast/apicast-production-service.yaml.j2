@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: {{ APP_LABEL }}
+    threescale_component: apicast
+    threescale_component_element: production
+  name: apicast-production
+spec:
+  ports:
+  - name: gateway
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  - name: management
+    port: 8090
+    protocol: TCP
+    targetPort: 8090
+  selector:
+    deployment: apicast-production

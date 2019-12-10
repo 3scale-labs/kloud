@@ -29,3 +29,10 @@ override.tf.json
 # example: *tfplan*
 
 tmp
+
+# Created by .ignore support plugin (hsz.mobi)
+3scale_k8s/resources/
+3scale_k8s/playbook/passwordfile
+
+### Ansible template
+*.retry

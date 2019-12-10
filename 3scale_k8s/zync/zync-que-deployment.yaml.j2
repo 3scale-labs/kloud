@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+#  creationTimestamp: null
+  labels:
+    app: {{ APP_LABEL }}
+    threescale_component: zync
+  name: zync-que
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: zync-que
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+#      timeoutSeconds: 600
+#      intervalSeconds: 1
+#      updatePeriodSeconds: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: "9394"
+        prometheus.io/scrape: "true"
+#      creationTimestamp: null
+      labels:
+        app: {{ APP_LABEL }}
+        deployment: zync-que
+    spec:
+      containers:
+      - args:
+        - -c
+        - bundle exec rake 'que[--worker-count 10]'
+        command:
+        - /usr/bin/bash
+        env:
+        - name: RAILS_LOG_TO_STDOUT
+          value: "true"
+        - name: RAILS_ENV
+          value: production
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              key: DATABASE_URL
+              name: zync
+        - name: SECRET_KEY_BASE
+          valueFrom:
+            secretKeyRef:
+              key: SECRET_KEY_BASE
+              name: zync
+        - name: ZYNC_AUTHENTICATION_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: ZYNC_AUTHENTICATION_TOKEN
+              name: zync
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        image: {{ AMP_ZYNC_IMAGE }}
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /metrics
+            port: 9394
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 60
+        name: que
+        ports:
+        - containerPort: 9394
+          name: metrics
+          protocol: TCP
+        resources: {}
+      restartPolicy: Always
+      serviceAccountName: zync-que-sa
+      terminationGracePeriodSeconds: 30

@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+ labels:
+   app: {{ APP_LABEL }}
+   threescale_component: system
+   threescale_component_element: provider-ui
+ name: system
+spec:
+ ports:
+ - name: http
+   port: 3000
+   protocol: TCP
+   targetPort: ui-api
+ selector:
+   deployment: system-app

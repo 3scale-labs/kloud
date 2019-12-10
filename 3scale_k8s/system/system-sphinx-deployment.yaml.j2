@@ -1,0 +1,122 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ APP_LABEL }}
+    threescale_component: system
+    threescale_component_element: sphinx
+  name: system-sphinx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: system-sphinx
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+#      intervalSeconds: 1
+#      timeoutSeconds: 1200
+#      updatePeriodSeconds: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: {{ APP_LABEL }}
+        deployment: system-sphinx
+        threescale_component: system
+        threescale_component_element: sphinx
+    spec:
+      containers:
+      - args:
+        - rake
+        - openshift:thinking_sphinx:start
+        env:
+        - name: RAILS_ENV
+          valueFrom:
+            configMapKeyRef:
+              key: RAILS_ENV
+              name: system-environment
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              key: URL
+              name: system-database
+        - name: THINKING_SPHINX_ADDRESS
+          value: 0.0.0.0
+        - name: THINKING_SPHINX_CONFIGURATION_FILE
+          value: db/sphinx/production.conf
+        - name: THINKING_SPHINX_PID_FILE
+          value: db/sphinx/searchd.pid
+        - name: DELTA_INDEX_INTERVAL
+          value: "5"
+        - name: FULL_REINDEX_INTERVAL
+          value: "60"
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              key: URL
+              name: system-redis
+        - name: MESSAGE_BUS_REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              key: MESSAGE_BUS_URL
+              name: system-redis
+        - name: REDIS_NAMESPACE
+          valueFrom:
+            secretKeyRef:
+              key: NAMESPACE
+              name: system-redis
+        - name: MESSAGE_BUS_REDIS_NAMESPACE
+          valueFrom:
+            secretKeyRef:
+              key: MESSAGE_BUS_NAMESPACE
+              name: system-redis
+        - name: REDIS_SENTINEL_HOSTS
+          valueFrom:
+            secretKeyRef:
+              key: SENTINEL_HOSTS
+              name: system-redis
+        - name: REDIS_SENTINEL_ROLE
+          valueFrom:
+            secretKeyRef:
+              key: SENTINEL_ROLE
+              name: system-redis
+        - name: MESSAGE_BUS_REDIS_SENTINEL_HOSTS
+          valueFrom:
+            secretKeyRef:
+              key: MESSAGE_BUS_SENTINEL_HOSTS
+              name: system-redis
+        - name: MESSAGE_BUS_REDIS_SENTINEL_ROLE
+          valueFrom:
+            secretKeyRef:
+              key: MESSAGE_BUS_SENTINEL_ROLE
+              name: system-redis
+        image: {{ AMP_SYSTEM_IMAGE }}
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          tcpSocket:
+            port: 9306
+        name: system-sphinx
+        resources: {}
+        volumeMounts:
+        - mountPath: /opt/system/db/sphinx
+          name: system-sphinx-database
+      initContainers:
+      - command:
+        - sh
+        - -c
+        - until $(curl --output /dev/null --silent --fail --head 'Host: {{ MASTER_DOMAIN }}' --head 'X-Forwarded-Proto: https' --head http://system:3000/status);
+          do sleep $SLEEP_SECONDS; done
+        env:
+        - name: SLEEP_SECONDS
+          value: "1"
+        image: {{ AMP_SYSTEM_IMAGE }}
+        name: system-master-svc
+        resources: {}
+      serviceAccountName: amp
+      volumes:
+      - emptyDir: {}
+        name: system-sphinx-database

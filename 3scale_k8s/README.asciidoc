@@ -1,0 +1,40 @@
+= Making 3scale run on Kubernetes
+
+== Issues
+
+=== Pre-hook
+
+* move it to entrypoint
+*
+
+=== Post-hook
+
+* Job with InitContainer loop waiting for dependency
+
+=== Strategy.resources
+
+* remove if empty
+
+=== Triggers.imageChangeParams
+
+* remove because no ImageStreams
+
+=== Triggers.ConfigChange
+
+* we delegate that responsibility to the deployer (we just remove from templates)
+
+=== Spec.Test
+
+delegate to deployer to handle CD (we just remove from templates)
+
+=== Strategy.Type == Rolling
+
+Change Strategy.Type == RollingUpdate
+
+the below no longer exist as options:
+
+```
+#      intervalSeconds: 1
+#      timeoutSeconds: 1200
+#      updatePeriodSeconds: 1
+```

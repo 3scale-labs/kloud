@@ -1,0 +1,9 @@
+resources:
+  - ./../base
+  - deployment.yaml
+  - system-config.yaml
+  - system-database-secret.yaml
+
+vars:
+  SYSTEM_DATABASE_PASSWORD: ""
+

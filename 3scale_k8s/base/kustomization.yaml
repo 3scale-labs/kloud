@@ -1,0 +1,22 @@
+configurations:
+  - config/varreference.yaml
+
+resources:
+  - parameters-configmap.yaml
+
+vars:
+  - name: APP_LABEL
+    objref:
+      kind: ConfigMap
+      name: parameters
+      apiVersion: v1
+    fieldref:
+      fieldpath: data.APP_LABEL
+
+  - name: SYSTEM_IMAGE
+    objref:
+      kind: ConfigMap
+      name: parameters
+      apiVersion: v1
+    fieldref:
+      fieldpath: data.SYSTEM_IMAGE

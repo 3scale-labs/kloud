@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+#  creationTimestamp: null
+  labels:
+    app: {{ APP_LABEL }}
+    threescale_component: backend
+    threescale_component_element: redis
+  name: backend-redis-storage
+spec:
+  accessModes:
+  - ReadWriteOnce
+#  dataSource: null
+  resources:
+    requests:
+      storage: 1Gi
+status: {}

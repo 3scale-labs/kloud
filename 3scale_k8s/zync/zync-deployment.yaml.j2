@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    prometheus.io/port: "9393"
+    prometheus.io/scrape: "true"
+#  creationTimestamp: null
+  labels:
+    app: {{ APP_LABEL }}
+    threescale_component: zync
+  name: zync
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: zync
+  template:
+    metadata:
+#      creationTimestamp: null
+      labels:
+        app: {{ APP_LABEL }}
+        deployment: zync
+        threescale_component: zync
+    spec:
+      containers:
+      - env:
+        - name: RAILS_LOG_TO_STDOUT
+          value: "true"
+        - name: RAILS_ENV
+          value: production
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              key: DATABASE_URL
+              name: zync
+        - name: SECRET_KEY_BASE
+          valueFrom:
+            secretKeyRef:
+              key: SECRET_KEY_BASE
+              name: zync
+        - name: ZYNC_AUTHENTICATION_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: ZYNC_AUTHENTICATION_TOKEN
+              name: zync
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        image: {{ AMP_ZYNC_IMAGE }}
+        livenessProbe:
+          failureThreshold: 10
+          httpGet:
+            path: /status/live
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 60
+        name: zync
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /status/ready
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 100
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 10
+        resources: {}
+      initContainers:
+      - command:
+        - bash
+        - -c
+        - bundle exec sh -c "until rake boot:db; do sleep $SLEEP_SECONDS; done"
+        env:
+        - name: SLEEP_SECONDS
+          value: "1"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              key: DATABASE_URL
+              name: zync
+        image: {{ AMP_ZYNC_IMAGE }}
+        name: zync-db-svc
+        resources: {}
+      serviceAccountName: amp

@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+#  creationTimestamp: null
+  labels:
+    app: {{ APP_LABEL }}
+    threescale_component: backend
+    threescale_component_element: redis
+  name: backend-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: backend-redis
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+#      creationTimestamp: null
+      labels:
+        app: {{ APP_LABEL }}
+        deployment: backend-redis
+        threescale_component: backend
+        threescale_component_element: redis
+    spec:
+      containers:
+      - args:
+        - /etc/redis.d/redis.conf
+        - --daemonize
+        - "no"
+        command:
+        - /opt/rh/rh-redis32/root/usr/bin/redis-server
+        image: {{ REDIS_IMAGE }}
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          tcpSocket:
+            port: 6379
+        name: backend-redis
+        readinessProbe:
+          exec:
+            command:
+            - container-entrypoint
+            - bash
+            - -c
+            - redis-cli set liveness-probe "`date`" | grep OK
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 1
+        resources: {}
+        volumeMounts:
+        - mountPath: /var/lib/redis/data
+          name: backend-redis-storage
+        - mountPath: /etc/redis.d/
+          name: redis-config
+      securityContext:
+        runAsUser: 1001
+        runAsGroup: 998
+        fsGroup: 998
+      serviceAccountName: amp
+      volumes:
+      - name: backend-redis-storage
+        persistentVolumeClaim:
+          claimName: backend-redis-storage
+      - configMap:
+          items:
+          - key: redis.conf
+            path: redis.conf
+          name: redis-config
+        name: redis-config
+#status:
+#  availableReplicas: 0
+#  latestVersion: 0
+#  observedGeneration: 0
+#  replicas: 0
+#  unavailableReplicas: 0
+#  updatedReplicas: 0

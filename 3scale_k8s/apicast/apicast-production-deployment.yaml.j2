@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ APP_LABEL }}
+    threescale_component: apicast
+    threescale_component_element: production
+  name: apicast-production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: apicast-production
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+#      intervalSeconds: 1
+#      timeoutSeconds: 1800
+#      updatePeriodSeconds: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: "9421"
+        prometheus.io/scrape: "true"
+      labels:
+        app: {{ APP_LABEL }}
+        deployment: apicast-production
+        threescale_component: apicast
+        threescale_component_element: production
+    spec:
+      containers:
+      - env:
+        - name: THREESCALE_PORTAL_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              key: PROXY_CONFIGS_ENDPOINT
+              name: system-master-apicast
+        - name: BACKEND_ENDPOINT_OVERRIDE
+          valueFrom:
+            secretKeyRef:
+              key: service_endpoint
+              name: backend-listener
+        - name: APICAST_MANAGEMENT_API
+          valueFrom:
+            configMapKeyRef:
+              key: APICAST_MANAGEMENT_API
+              name: apicast-environment
+        - name: OPENSSL_VERIFY
+          valueFrom:
+            configMapKeyRef:
+              key: OPENSSL_VERIFY
+              name: apicast-environment
+        - name: APICAST_RESPONSE_CODES
+          valueFrom:
+            configMapKeyRef:
+              key: APICAST_RESPONSE_CODES
+              name: apicast-environment
+        - name: APICAST_CONFIGURATION_LOADER
+          value: boot
+        - name: APICAST_CONFIGURATION_CACHE
+          value: "300"
+        - name: THREESCALE_DEPLOYMENT_ENV
+          value: production
+        image: {{ AMP_APICAST_IMAGE }}
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /status/live
+            port: 8090
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+        name: apicast-production
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        - containerPort: 8090
+          protocol: TCP
+        - containerPort: 9421
+          name: metrics
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /status/ready
+            port: 8090
+          initialDelaySeconds: 15
+          periodSeconds: 30
+          timeoutSeconds: 5
+        resources: {}
+      initContainers:
+      - command:
+        - sh
+        - -c
+        - until $(curl --output /dev/null --silent --fail --head http://system:3000/status);
+          do sleep $SLEEP_SECONDS; done
+        env:
+        - name: SLEEP_SECONDS
+          value: "1"
+        image: {{ AMP_APICAST_IMAGE }}
+        name: system-master-svc
+        resources: {}
+      serviceAccountName: amp
