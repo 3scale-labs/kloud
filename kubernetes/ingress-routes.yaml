@@ -33,7 +33,7 @@ spec:
   - match: HostRegexp(`{domain:.*}`)
     kind: Rule
     services:
-    - name: system-master
+    - name: system
       port: 3000
       passHostHeader: true
 
@@ -74,6 +74,6 @@ spec:
   - match: HostRegexp(`{domain:.*}`)
     kind: Rule
     services:
-    - name: system-master
+    - name: system
       port: 3000
       passHostHeader: true
