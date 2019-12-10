@@ -54,3 +54,18 @@ resource "aws_route53_record" "gcp_mc_threesca_net" {
   ]
 }
 
+
+resource "aws_route53_record" "az_mc_threesca_net" {
+  provider = aws.master
+  zone_id  = data.aws_route53_zone.threesca_net.zone_id
+  name     = "az.mc.3sca.net."
+  type     = "NS"
+  ttl      = "300"
+  records = [
+    "ns1-05.azure-dns.com.",
+    "ns2-05.azure-dns.net.",
+    "ns3-05.azure-dns.org.",
+    "ns4-05.azure-dns.info.",
+  ]
+}
+
