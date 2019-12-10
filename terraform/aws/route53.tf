@@ -17,6 +17,14 @@ resource "aws_route53_zone" "this" {
   tags = module.aws_mc_zone_label.tags
 }
 
+resource "aws_route53_record" "traefik" {
+  zone_id = "${aws_route53_zone.this.zone_id}"
+  name    = "*.hackfest.aws.mc.3sca.net"
+  type    = "CNAME"
+  ttl     = "30"
+  records = ["a17de6e991a9911eabba112f9a62405d-956925070.us-east-1.elb.amazonaws.com"]
+}
+
 #
 # Delegate the zone from the master account to the newly created zone
 #
