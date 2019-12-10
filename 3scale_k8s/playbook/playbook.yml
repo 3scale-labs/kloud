@@ -7,5 +7,7 @@
       with_fileglob:
         - ../apicast/*.j2
         - ../backend/*.j2
+        - ../rbac/*.j2
         - ../shared/*.j2
+        - ../system/*.j2
         - ../zync/*.j2
