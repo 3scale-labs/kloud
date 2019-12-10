@@ -54,6 +54,10 @@ spec:
           name: backend-redis-storage
         - mountPath: /etc/redis.d/
           name: redis-config
+      securityContext:
+        runAsUser: 1001
+        runAsGroup: 998
+        fsGroup: 998
       serviceAccountName: amp
       volumes:
       - name: backend-redis-storage

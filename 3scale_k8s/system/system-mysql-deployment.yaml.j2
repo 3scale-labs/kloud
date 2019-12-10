@@ -74,6 +74,10 @@ spec:
           name: mysql-extra-conf
         - mountPath: /etc/my-extra
           name: mysql-main-conf
+      securityContext:
+        runAsUser: 27
+        runAsGroup: 27
+        fsGroup: 27
       serviceAccountName: amp
       volumes:
       - name: mysql-storage
