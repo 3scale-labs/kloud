@@ -1,11 +1,22 @@
 resources:
 
-- name: dns-zone
+- name: gcp-mc-3sca-net-dns-zone
   type: gcp-types/dns-v1:managedZones
   properties:
     description: Managed zone for gcp.mc.3sca.net.
     dnsName: gcp.mc.3sca.net.
 
+- name: gcp-mc-3sca-net-dns-recordsets
+  type: gcp-types/dns-v1:resourceRecordSets
+  properties:
+    name: "*.gcp.mc.3sca.net."
+    managedZone: gcp-mc-3sca-net-dns-zone
+    records:
+    - type: A
+      ttl: 30
+      rrdatas:
+      - 130.211.107.199
+
 outputs:
 - name: gcp.mc.3sca.net. name servers
-  value: $(ref.dns-zone.nameServers)
+  value: $(ref.gcp-mc-3sca-net-dns-zone.nameServers)
