@@ -142,6 +142,18 @@ resource "azurerm_kubernetes_cluster" "main" {
     ]
   }
 
+  agent_pool_profile {
+    name                = "computepool"
+    type                = "VirtualMachineScaleSets"
+    min_count           = 1
+    max_count           = 3
+    enable_auto_scaling = true
+    vm_size             = "${var.vm_size}"
+    os_type             = "Linux"
+    vnet_subnet_id      = "${azurerm_subnet.aks.id}"
+    os_disk_size_gb     = 30
+  }
+
   addon_profile {
     # Enable virtual node (ACI connector) for Linux
     aci_connector_linux {
