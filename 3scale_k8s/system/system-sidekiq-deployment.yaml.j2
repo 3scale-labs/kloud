@@ -297,7 +297,7 @@ spec:
       - command:
         - bash
         - -c
-        - bundle exec sh -c "until rake boot:redis && curl --output /dev/null --silent --fail --head 'Host: {{ MASTER_DOMAIN }}' --head 'X-Forwarded-Proto: https' --head http://system:3000/status; do sleep $SLEEP_SECONDS; done"
+        - "bundle exec sh -c \"until rake boot:redis && curl --output /dev/null --silent --fail -H 'Host: {{ MASTER_DOMAIN }}' -H 'X-Forwarded-Proto: https' http://system:3000/status; do sleep $SLEEP_SECONDS; done\""
         env:
         - name: REDIS_URL
           valueFrom:
