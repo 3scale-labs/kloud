@@ -11,10 +11,6 @@ nfs:  ## Deploy NFS storage class and provisioner
 	kubectl apply -f kubernetes/nfs/
 
 traefik: ## Delete standard traefik deployment on k3d and deploy traefik v2
-	kubectl delete deployment --namespace=kube-system traefik || true
-	kubectl wait --for=delete --namespace=kube-system deployment/traefik || true
-	kubectl delete daemonset --namespace=kube-system svclb-traefik || true
-	kubectl wait --for=delete --namespace=kube-system daemonset/svclb-traefik || true
 	kubectl apply -f kubernetes/admin-sa.yaml
 	kubectl apply -f kubernetes/traefik/
 	kubectl apply -f kubernetes/ingress-routes.yaml
@@ -31,14 +27,9 @@ traefik: ## Delete standard traefik deployment on k3d and deploy traefik v2
 
 infra: ## Create k3d Cluster. Requires free ports (8000, 8080 and 8443) on your host machine.
 infra: k3d
-	k3d create --publish 8000:80 --publish 8080:8080 --publish 8443:443 --workers 2
+	k3d create --publish 8000:80 --publish 8080:8080 --publish 8443:443 --workers 2 --server-arg --no-deploy=traefik
 	sleep 10
 	export KUBECONFIG="$$(k3d get-kubeconfig --name='k3s-default')"
-	until kubectl wait --for=condition=available deployment/traefik --namespace=kube-system ; \
-	do \
-	sleep 5; \
-	done;
-
 
 clean: ## Cleanup generated files
 	rm -f 3scale_k8s/playbook/passwords/*
