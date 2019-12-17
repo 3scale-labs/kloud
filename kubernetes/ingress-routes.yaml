@@ -1,3 +1,4 @@
+---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
@@ -6,25 +7,25 @@ spec:
   entryPoints:
     - web
   routes:
-  - match: HostRegexp(`{domain:traefik.hackfest.[a-z]+.mc.3sca.net}`)
+  - match: HostRegexp(`traefik.127.0.0.1.nip.io`, `{domain:traefik.hackfest.[a-z]+.mc.3sca.net}`)
     kind: Rule
     services:
     - name: traefik
       port: 8080
       passHostHeader: true
-  - match: HostRegexp(`{domain:backend-listener..hackfest.[a-z]+.mc.3sca.net}`)
+  - match: HostRegexp(`backend-listener.127.0.0.1.nip.io`, `{domain:backend-listener..hackfest.[a-z]+.mc.3sca.net}`)
     kind: Rule
     services:
     - name: backend-listener
       port: 3000
       passHostHeader: true
-  - match: HostRegexp(`{domain:.*-apicast-staging.hackfest.[a-z]+.mc.3sca.net}`)
+  - match: HostRegexp(`{domain:.*-apicast-staging.127.0.0.1.nip.io}`, `{domain:.*-apicast-staging.hackfest.[a-z]+.mc.3sca.net}`)
     kind: Rule
     services:
     - name: apicast-staging
       port: 8080
       passHostHeader: true
-  - match: HostRegexp(`{domain:.*-apicast-production.hackfest.[a-z]+.mc.3sca.net}`)
+  - match: HostRegexp(`{domain:.*-apicast-production.127.0.0.1.nip.io}`, `{domain:.*-apicast-production.hackfest.[a-z]+.mc.3sca.net}`)
     kind: Rule
     services:
     - name: apicast-production
@@ -47,25 +48,25 @@ spec:
     - websecure
   tls: {}
   routes:
-  - match: HostRegexp(`{domain:traefik.hackfest.[a-z]+.mc.3sca.net}`)
+  - match: HostRegexp(`traefik.127.0.0.1.nip.io`, `{domain:traefik.hackfest.[a-z]+.mc.3sca.net}`)
     kind: Rule
     services:
     - name: traefik
       port: 8080
       passHostHeader: true
-  - match: HostRegexp(`{domain:backend-listener..hackfest.[a-z]+.mc.3sca.net}`)
+  - match: HostRegexp(`backend-listener.127.0.0.1.nip.io`, `{domain:backend-listener..hackfest.[a-z]+.mc.3sca.net}`)
     kind: Rule
     services:
     - name: backend-listener
       port: 3000
       passHostHeader: true
-  - match: HostRegexp(`{domain:.*-apicast-staging.hackfest.[a-z]+.mc.3sca.net}`)
+  - match: HostRegexp(`{subdomain:.*-apicast-staging}.127.0.0.1.nip.io:8443`, `{domain:.*-apicast-staging.hackfest.[a-z]+.mc.3sca.net}`)
     kind: Rule
     services:
     - name: apicast-staging
       port: 8080
       passHostHeader: true
-  - match: HostRegexp(`{domain:.*-apicast-production.hackfest.[a-z]+.mc.3sca.net}`)
+  - match: HostRegexp(`{subdomain:.*-apicast-production}.127.0.0.1.nip.io:8443`, `{domain:.*-apicast-production.hackfest.[a-z]+.mc.3sca.net}`)
     kind: Rule
     services:
     - name: apicast-production
