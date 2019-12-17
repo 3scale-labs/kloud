@@ -1,6 +1,6 @@
 = Making 3scale run on Kubernetes
 
-== Issues
+== Migration Issues
 
 === Pre-hook
 
