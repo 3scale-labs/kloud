@@ -12,7 +12,7 @@ traefik:
 	kubectl delete daemonset -n kube-system svclb-traefik
 	kubectl delete deployment -n kube-system traefik
 	kubectl apply -f kubernetes/admin-sa.yaml
-	kubectl apply -f kubernetes/traefik.yaml
+	kubectl apply -f kubernetes/traefik/
 	kubectl apply -f kubernetes/ingress-routes.yaml
 
 3scale_k8s/resources:
@@ -28,6 +28,7 @@ k3d_infra:
 	k3d create --publish 8000:80 --publish 8080:8080 --publish 8443:443 --workers 2
 	sleep 30
 	export KUBECONFIG="$$(k3d get-kubeconfig --name='k3s-default')"
+	kubectl wait --for=condition=available deployment/traefik --namespace=kube-system
 
 
 clean:
