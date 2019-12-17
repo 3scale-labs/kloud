@@ -32,7 +32,7 @@ tmp
 
 # Created by .ignore support plugin (hsz.mobi)
 3scale_k8s/resources/
-3scale_k8s/playbook/passwordfile
+3scale_k8s/playbook/passwords/
 
 ### Ansible template
 *.retry
