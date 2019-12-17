@@ -21,6 +21,8 @@ This repo contains an example of deploying 3scale on your laptop, on [k3d](https
 1. Grab a cup of :coffee: 
 1. use `kubectl get pods` (or, even better [k9s](https://github.com/derailed/k9s) :tada: ) to watch deployment status
 1. Go to https://master-account.127.0.0.1.nip.io:8443 on your browser
+1. Accept the self-signed certificate warning
+1. Login with username `master` and password the value that you'll find in `$PROJECT_ROOT/3scale_k8s/playbook/passwords/master_password`.
 
 
 ### Troubleshooting
