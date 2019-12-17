@@ -31,6 +31,9 @@ override.tf.json
 tmp
 
 # Created by .ignore support plugin (hsz.mobi)
+
+kubernetes/coredns/
+
 3scale_k8s/resources/
 3scale_k8s/playbook/passwords/
 
