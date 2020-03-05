@@ -18,7 +18,7 @@ This repo contains an example of deploying 3scale on your laptop, on [k3d](https
   * Configuration files read by the System component at run-time
   * Static files (HTML, CSS, JS, etc) uploaded to System by its CMS feature, for the purpose of creating a Developer Portal
   * Note that System can be scaled horizontally with multiple pods uploading and reading said static files, hence the need for a RWX PersistentVolume
-* For dev purpose, it can deployed on the k8s cluster a small [nfs-provisioner](kubernetes/nfs/) in order to create a RWX `PersistentVolumeClaim` without using S3 or any external NFS...
+* For dev purposes, a small [nfs-provisioner](kubernetes/nfs/) can be deployed in the k8s cluster in order to create a RWX `PersistentVolumeClaim` without using S3 or any external NFS...
   * 3scale templates: specify template variable `RWX_STORAGE_CLASS` to value `nfs`
   * 3scale operator: specify `APIManager` CR variable `StorageClassName` to value `nfs`
   ```yaml
